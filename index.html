@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<script src="https://unpkg.com/vue@next"></script>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&family=Source+Sans+Pro&display=swap" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="stylesheet.css">
+</head>
+
+<body>
+	<div id="app">
+		<section>
+			<player
+				:config="config"
+				:available="ingredients"
+				:name="players.human.name"
+				:ingredients="players.human.ingredients">
+			</player>
+			<ingredients
+				:config="config"
+				:data="data"
+				:ingredients="ingredients">
+			</ingredients>
+			<player
+				:config="config"
+				:available="ingredients"
+				:name="players.ai.name"
+				:ingredients="players.ai.ingredients">
+			</player>
+		</section>
+		<section>
+			<div class="player-recipes">
+				<recipe-list
+					:config="config"
+					:data="data"
+					:available="availableIngredients"
+					:player="playerIngredients"
+					:game="gameIngredients"
+					>
+				</recipe-list>
+			</div>
+		</section>
+	</div>
+	<script>
+		const app = Vue.createApp({
+			data() {
+				return {
+					config: {
+						images: 'img/',
+						maxIngredients: {
+							player: 5,
+							game: 12
+						}
+					},
+					players: {
+						human: {id: 0, name: 'You', ingredients: [null, null, null, null, null]},
+						ai: {id: 1, name: 'Mactung', ingredients: [null, null, null, null, null]}
+					},
+					ingredients: Array(12).fill({
+						ingredient: null,
+						isConsumed: false
+					}),
+					data: {
+						ingredients: [
+							{"id":0,"name":"Apple Vinegar","type":"simple","image":"apple-vinegar.png"},
+							{"id":1,"name":"Bamboo Eggplant","type":"vegetable","image":"bamboo-eggplant.png"},
+							{"id":2,"name":"Bigfoot Pineapple","type":"fruit","image":"bigfoot-pineapple.png"},
+							{"id":3,"name":"Cheese","type":"simple","image":"cheese.png"},
+							{"id":4,"name":"Chili","type":"simple","image":"chili.png"},
+							{"id":5,"name":"Cream","type":"simple","image":"cream.png"},
+							{"id":6,"name":"Desert Wolf Meat","type":"meat","image":"desert-wolf-meat.png"},
+							{"id":7,"name":"Eggshell Chick","type":"meat","image":"eggshell-chick.png"},
+							{"id":8,"name":"Flour","type":"simple","image":"flour.png"},
+							{"id":9,"name":"Goblin Strawberry","type":"fruit","image":"goblin-strawberry.png"},
+							{"id":10,"name":"Gold Pumpkin","type":"vegetable","image":"gold-pumpkin.png"},
+							{"id":11,"name":"Hydra Meat","type":"fish","image":"hydra-meat.png"},
+							{"id":12,"name":"Inkfish Tenacle","type":"fish","image":"inkfish-tentacle.png"},
+							{"id":13,"name":"Lunatic Meat","type":"meat","image":"lunatic-meat.png"},
+							{"id":14,"name":"Magic Spore","type":"vegetable","image":"magic-spore.png"},
+							{"id":15,"name":"Marc Meat","type":"fish","image":"marc-meat.png"},
+							{"id":16,"name":"Marina Meat","type":"fish","image":"marina-meat.png"},
+							{"id":17,"name":"Milk","type":"simple","image":"milk.png"},
+							{"id":18,"name":"Miso Powder","type":"simple","image":"miso-powder.png"},
+							{"id":19,"name":"Moai Melon","type":"fruit","image":"moai-melon.png"},
+							{"id":20,"name":"Mountain Celery","type":"vegetable","image":"mountain-celery.png"},
+							{"id":21,"name":"Muka Meat","type":"fish","image":"muka-meat.png"},
+							{"id":22,"name":"Mutated Fish","type":"fish","image":"mutated-fish.png"},
+							{"id":23,"name":"Poring Apple","type":"fruit","image":"poring-apple.png"},
+							{"id":24,"name":"Rainbow Powder","type":"simple","image":"rainbow-powder.png"},
+							{"id":25,"name":"Rocker Leg Meat","type":"meat","image":"rocker-leg-meat.png"},
+							{"id":26,"name":"Salt","type":"simple","image":"salt.png"},
+							{"id":27,"name":"Sauce","type":"simple","image":"sauce.png"},
+							{"id":28,"name":"Savage Meat","type":"meat","image":"savage-meat.png"},
+							{"id":29,"name":"Smokie Grape","type":"fruit","image":"smokie-grape.png"},
+							{"id":30,"name":"South Gate Carrot","type":"vegetable","image":"south-gate-carrot.png"},
+							{"id":31,"name":"Sugar","type":"simple","image":"sugar.png"},
+							{"id":32,"name":"Vadon Meat","type":"fish","image":"vadon-meat.png"},
+							{"id":33,"name":"Vanilla","type":"simple","image":"vanilla.png"},
+							{"id":34,"name":"West Gate Tomato","type":"vegetable","image":"west-gate-tomato.png"},
+							{"id":35,"name":"Yoyo Banana","type":"fruit","image":"yoyo-banana.png"}
+						],
+						recipes: [
+							{"name": "Original Will-Salad", "rating": 5, "type": "fry", "ingredients": [1, 10, 14, 20, 18]},
+							{"name": "Original Will-Fish Steak", "rating": 5, "type": "fry", "ingredients": [15, 22, 16, 12, 18]},
+							{"name": "Original Will-Steak", "rating": 5, "type": "fry", "ingredients": [28, 21, 6, 7, 18]},
+							{"name": "Prontera Royal Salad", "rating": 4.5, "type": "fry", "ingredients": [1, 14, 30, 0, 27]},
+							{"name": "Prontera Royal Fish Steak", "rating": 4.5, "type": "fry", "ingredients": [15, 12, 11, 3, 0]},
+							{"name": "Prontera Royal Steak", "rating": 4.5, "type": "fry", "ingredients": [28, 6, 13, 27, 5]},
+							{"name": "Sweet Coriander", "rating": 4, "type": "fry", "ingredients": [1, 20, 27, 5]},
+							{"name": "Fishman's Soul", "rating": 4, "type": "fry", "ingredients": [15, 16, 0, 27]},
+							{"name": "Desert Steak", "rating": 4, "type": "fry", "ingredients": [28, 6, 0, 3]},
+							{"name": "Forest Treasure", "rating": 3.5, "type": "fry", "ingredients": [20, 30, 31, 4]},
+							{"name": "Hydra", "rating": 3.5, "type": "fry", "ingredients": [16, 11, 4, 33]},
+							{"name": "Geffen Steak", "rating": 3.5, "type": "fry", "ingredients": [6, 7, 4, 8]},
+							{"name": "Fantasy Salad", "rating": 3, "type": "fry", "ingredients": [20, 30, 26, 17]},
+							{"name": "Fantasy Seafood Kebab", "rating": 3, "type": "fry", "ingredients": [16, 32, 26, 30]},
+							{"name": "Fantasy Steak", "rating": 3, "type": "fry", "ingredients": [7, 25, 26, 30]},
+							{"name": "Yummy Salad", "rating": 2.5, "type": "fry", "ingredients": [1, 33, 5]},
+							{"name": "Yummy Fish Steak", "rating": 2.5, "type": "fry", "ingredients": [15, 16, 0]},
+							{"name": "Yummy Steak", "rating": 2.5, "type": "fry", "ingredients": [1, 13, 0]},
+							{"name": "Spicy Branch Vegetable", "rating": 2, "type": "fry", "ingredients": [1, 30, 4]},
+							{"name": "East Seafood Kebab", "rating": 2, "type": "fry", "ingredients": [15, 12, 4]},
+							{"name": "Flame God History", "rating": 2, "type": "fry", "ingredients": [28, 6, 4]},
+							{"name": "Vegetable Meal", "rating": 1.5, "type": "fry", "ingredients": [20, 14, 17]},
+							{"name": "Seafood Rice", "rating": 1.5, "type": "fry", "ingredients": [16, 12, 17]},
+							{"name": "Delicious Steak", "rating": 1.5, "type": "fry", "ingredients": [20, 6, 7]},
+							{"name": "Healthy Salad", "rating": 1, "type": "fry", "ingredients": [33, 26]},
+							{"name": "Seafood Bowl", "rating": 1, "type": "fry", "ingredients": [31, 8]},
+							{"name": "Traveler Bacon", "rating": 1, "type": "fry", "ingredients": [13, 26]},
+							{"name": "Rookie Jam", "rating": 0.5, "type": "fry", "ingredients": "fruit"},
+							{"name": "Rookie Fish Steak", "rating": 0.5, "type": "fry", "ingredients": "fish"},
+							{"name": "Rookie Fried Dish", "rating": 0.5, "type": "fry", "ingredients": "vegetable"},
+							{"name": "Rookie Meat Steak", "rating": 0.5, "type": "fry", "ingredients": "meat"},
+
+							{"name": "Original Will-Green BBQ", "rating": 5, "type": "grill", "ingredients": [1, 10, 14, 20, 18]},
+							{"name": "Original Will-Fish Kebab", "rating": 5, "type": "grill", "ingredients": [15, 22, 16, 12, 18]},
+							{"name": "Original Will-Kebab", "rating": 5, "type": "grill", "ingredients": [28, 21, 6, 7, 18]},
+							{"name": "Prontera Royal Green BBQ", "rating": 4.5, "type": "grill", "ingredients": [10, 20, 33, 3, 0]},
+							{"name": "Prontera Royal Fish Kebab", "rating": 4.5, "type": "grill", "ingredients": [22, 16, 31, 27, 0]},
+							{"name": "Prontera Royal Kebab", "rating": 4.5, "type": "grill", "ingredients": [21, 7, 25, 0, 27]},
+							{"name": "Sky Blade", "rating": 4, "type": "grill", "ingredients": [10, 14, 27, 0]},
+							{"name": "Trubius Seafood Kebab", "rating": 4, "type": "grill", "ingredients": [22, 12, 0, 3]},
+							{"name": "Giant Pagoda", "rating": 4, "type": "grill", "ingredients": [21, 7, 5, 27]},
+							{"name": "Payon's Vegetable Kebab", "rating": 3.5, "type": "grill", "ingredients": [14, 33, 17, 32]},
+							{"name": "Call From Ocean", "rating": 3.5, "type": "grill", "ingredients": [12, 31, 4, 32]},
+							{"name": "Gold Cross Kebab", "rating": 3.5, "type": "grill", "ingredients": [7, 25, 32, 4]},
+							{"name": "Magic Green BBQ", "rating": 3, "type": "grill", "ingredients": [14, 33, 26, 8]},
+							{"name": "Magic Seafood Kebab", "rating": 3, "type": "grill", "ingredients": [12, 11, 33, 26]},
+							{"name": "Magic Meat Kebab", "rating": 3, "type": "grill", "ingredients": [13, 6, 23, 26]},
+							{"name": "Yummy Vegetables", "rating": 2.5, "type": "grill", "ingredients": [10, 30, 0]},
+							{"name": "Yummy Seafood Kebab", "rating": 2.5, "type": "grill", "ingredients": [22, 32, 0]},
+							{"name": "Yummy Kebab", "rating": 2.5, "type": "grill", "ingredients": [21, 6, 0]},
+							{"name": "Flame Vegetable Kebab", "rating": 2, "type": "grill", "ingredients": [10, 14, 4]},
+							{"name": "Superb Seafood Kebab", "rating": 2, "type": "grill", "ingredients": [22, 16, 4]},
+							{"name": "Gold Kebab", "rating": 2, "type": "grill", "ingredients": [21, 7, 33]},
+							{"name": "Farmer's Smile", "rating": 2, "type": "grill", "ingredients": [14, 23, 31]},
+							{"name": "Izlude Pride", "rating": 1.5, "type": "grill", "ingredients": [16, 12, 32]},
+							{"name": "Starving Kebabs", "rating": 1.5, "type": "grill", "ingredients": [6, 25, 14]},
+							{"name": "MSG", "rating": 1, "type": "grill", "ingredients": [30, 26]},
+							{"name": "Island Kebab", "rating": 1, "type": "grill", "ingredients": [11, 8]},
+							{"name": "Popular Kebab", "rating": 1, "type": "grill", "ingredients": [25, 26]},
+							{"name": "Rookie Fruit Slices", "rating": 0.5, "type": "grill", "ingredients": "fruit"},
+							{"name": "Rookie Seafood Kebab", "rating": 0.5, "type": "grill", "ingredients": "fish"},
+							{"name": "Rookie Vegetable Kebab", "rating": 0.5, "type": "grill", "ingredients": "vegetable"},
+							{"name": "Rookie Meat Kebab", "rating": 0.5, "type": "grill", "ingredients": "meat"},
+
+							{"name": "Original Will-Vegetable Soup", "rating": 5, "type": "boil", "ingredients": [1, 10, 14, 20, 18]},
+							{"name": "Original Will-Seafood Soup", "rating": 5, "type": "boil", "ingredients": [15, 22, 16, 12, 24]},
+							{"name": "Original Will-Broth", "rating": 5, "type": "boil", "ingredients": [28, 21, 6, 7, 24]},
+							{"name": "Prontera Royal Vegetable Soup", "rating": 4.5, "type": "boil", "ingredients": [1, 10, 30, 3, 27]},
+							{"name": "Prontera Royal Seafood Soup", "rating": 4.5, "type": "boil", "ingredients": [15, 22, 11, 3, 27]},
+							{"name": "Prontera Royal Broth", "rating": 4.5, "type": "boil", "ingredients": [28, 21, 13, 0, 3]},
+							{"name": "Sage in Dark", "rating": 4, "type": "boil", "ingredients": [10, 1, 17, 3]},
+							{"name": "Song for You", "rating": 4, "type": "boil", "ingredients": [22, 15, 3, 0]},
+							{"name": "Brandy March", "rating": 4, "type": "boil", "ingredients": [21, 28, 27, 0]},
+							{"name": "Princess' Black Tea", "rating": 3.5, "type": "boil", "ingredients": [14, 20, 32, 26]},
+							{"name": "Al De Baran Fish Soup", "rating": 3.5, "type": "boil", "ingredients": [12, 16, 30, 32]},
+							{"name": "Mother's Hug", "rating": 3.5, "type": "boil", "ingredients": [6, 13, 32, 4]},
+							{"name": "Fantasy Vegetable Soup", "rating": 3, "type": "boil", "ingredients": [33, 30, 20, 8]},
+							{"name": "Fantasy Fish Soup", "rating": 3, "type": "boil", "ingredients": [16, 11, 17, 26]},
+							{"name": "Fantasy Broth", "rating": 3, "type": "boil", "ingredients": [25, 7, 30, 17]},
+							{"name": "Yummy Vegetable Soup", "rating": 2.5, "type": "boil", "ingredients": [1, 10, 5]},
+							{"name": "Yummy Seafood Soup", "rating": 2.5, "type": "boil", "ingredients": [15, 22, 0]},
+							{"name": "Yummy Broth", "rating": 2.5, "type": "boil", "ingredients": [1, 25, 5]},
+							{"name": "Warm Oasis", "rating": 2, "type": "boil", "ingredients": [1, 10, 32]},
+							{"name": "Singing Soul", "rating": 2, "type": "boil", "ingredients": [22, 15, 17]},
+							{"name": "Satisfied", "rating": 2, "type": "boil", "ingredients": [28, 21, 31]},
+							{"name": "Delicious Vegetable Soup", "rating": 1.5, "type": "boil", "ingredients": [20, 14, 9]},
+							{"name": "Warm Current", "rating": 1.5, "type": "boil", "ingredients": [12, 11, 8]},
+							{"name": "Music Box Broth", "rating": 1.5, "type": "boil", "ingredients": [7, 25, 31]},
+							{"name": "Mum's Soup", "rating": 1, "type": "boil", "ingredients": [29, 33]},
+							{"name": "Fish Head Soup", "rating": 1, "type": "boil", "ingredients": [11, 26]},
+							{"name": "Fragrant Broth", "rating": 1, "type": "boil", "ingredients": [13, 8]},
+							{"name": "Rookie Black Tea", "rating": 0.5, "type": "boil", "ingredients": "fruit"},
+							{"name": "Rookie Fish Soup", "rating": 0.5, "type": "boil", "ingredients": "fish"},
+							{"name": "Rookie Vegetable Soup", "rating": 0.5, "type": "boil", "ingredients": "vegetable"},
+							{"name": "Rookie Broth", "rating": 0.5, "type": "boil", "ingredients": "meat"},
+
+							{"name": "Original Will-Ice Cream", "rating": 5, "type": "chill", "ingredients": [19, 2, 9, 18, 24]},
+							{"name": "Original Will-Cookies", "rating": 5, "type": "chill", "ingredients": [19, 2, 9, 34, 18]},
+							{"name": "Original Will-Juice", "rating": 5, "type": "chill", "ingredients": [19, 2, 9, 34, 24]},
+							{"name": "Prontera Royal Ice Cream", "rating": 4.5, "type": "chill", "ingredients": [2, 9, 23, 3, 5]},
+							{"name": "Prontera Royal Cookie", "rating": 4.5, "type": "chill", "ingredients": [19, 2, 23, 3, 5]},
+							{"name": "Prontera Royal Juice", "rating": 4.5, "type": "chill", "ingredients": [19, 35, 29, 3, 5]},
+							{"name": "Gatler's Palace", "rating": 4, "type": "chill", "ingredients": [2, 35, 5, 3]},
+							{"name": "Princess' Afternoon Tea", "rating": 4, "type": "chill", "ingredients": [19, 2, 30, 3]},
+							{"name": "Summer Star", "rating": 4, "type": "chill", "ingredients": [19, 9, 5, 3]},
+							{"name": "Bigfoot Forest Cookie", "rating": 3.5, "type": "chill", "ingredients": [9, 34, 32, 8]},
+							{"name": "Marchant City's Cake", "rating": 3.5, "type": "chill", "ingredients": [34, 28, 17, 32]},
+							{"name": "Noble Black Tea", "rating": 3.5, "type": "chill", "ingredients": [9, 23, 30, 32]},
+							{"name": "Magic Cookie", "rating": 3, "type": "chill", "ingredients": [34, 28, 30, 17]},
+							{"name": "Magic Ice Cream", "rating": 3, "type": "chill", "ingredients": [23, 9, 30, 17]},
+							{"name": "Magic Bread", "rating": 3, "type": "chill", "ingredients": [13, 9, 26, 8]},
+							{"name": "Yummy Cookie", "rating": 2.5, "type": "chill", "ingredients": [19, 23, 5]},
+							{"name": "Yummy Tea", "rating": 2.5, "type": "chill", "ingredients": [19, 2, 17]},
+							{"name": "Yummy Cake", "rating": 2.5, "type": "chill", "ingredients": [2, 29, 5]},
+							{"name": "Ancient Ice Honey", "rating": 2, "type": "chill", "ingredients": [19, 2, 32]},
+							{"name": "Ventican Bread", "rating": 2, "type": "chill", "ingredients": [28, 10, 32]},
+							{"name": "Duke Juice", "rating": 2, "type": "chill", "ingredients": [19, 9, 32]},
+							{"name": "Cheese Cake", "rating": 1.5, "type": "chill", "ingredients": [9, 17, 8]},
+							{"name": "Seaside Black Tea", "rating": 1.5, "type": "chill", "ingredients": [34, 30, 17]},
+							{"name": "Ice Cream", "rating": 1, "type": "chill", "ingredients": [23, 28]},
+							{"name": "Ray Dessert", "rating": 1, "type": "chill", "ingredients": [30, 8]},
+							{"name": "Rookie Fruit Plate", "rating": 0.5, "type": "chill", "ingredients": "fruit"},
+							{"name": "Rookie Sushi", "rating": 0.5, "type": "chill", "ingredients": "fish"},
+							{"name": "Rookie Salad", "rating": 0.5, "type": "chill", "ingredients": "vegetable"},
+							{"name": "Rookie Sashimi", "rating": 0.5, "type": "chill", "ingredients": "meat"}
+						]
+					}
+				}
+			},
+			computed: {
+				playerIngredients() {
+					return this.sanitizePlayer(this.players.human.ingredients);
+				},
+				aiIngredients() {
+					return this.sanitizePlayer(this.players.ai.ingredients);
+				},
+				gameIngredients() {
+					return this.sanitizeAvailable(this.ingredients);
+				},
+				availableIngredients() {
+					const available = this.sanitizeAvailable(this.ingredients);
+					this.aiIngredients.forEach(ingredient => {
+						const index = available.findIndex(availableIngredient => availableIngredient !== null && availableIngredient.ingredient.id === ingredient.id);
+						if(index === -1)
+							return;
+						available[index] = null;
+					});
+
+					return this.sanitizeAvailable(available);
+				}
+			},
+			methods: {
+				sanitizePlayer(array) {
+					return array
+						.filter(item => item !== undefined && item !== null)
+				},
+				sanitizeAvailable(array) {
+					return array
+						.filter(item => item !== null
+							&& item !== undefined
+							&& item.ingredient !== undefined
+							&& item.ingredient !== null)
+				}
+			}
+		});
+
+		app.component('player', {
+			props: {
+				config: Object,
+				available: Object,
+				name: String,
+				ingredients: {
+					type: Array,
+					default: []
+				}
+			},
+			data() {
+				return {
+					indexes: []
+				}
+			},
+			methods: {
+				selected(event) {
+					this.ingredients[event.index] = this.available[event.ingredientIndex].ingredient;
+					this.indexes[event.index] = event.ingredientIndex;
+					this.available[event.ingredientIndex].isConsumed = true;
+				},
+				deselected(event) {
+					this.ingredients[event.index] = null;
+					this.available[this.indexes[event.index]].isConsumed = false;
+					this.indexes[event.index] = null;
+				}
+			},
+			template: `<div class="player">
+					<h1>{{ name }}</h1>
+					<div class="player-ingredients">
+						<ingredient
+							v-for="(ingredient, index) in ingredients"
+							:config="config"
+							:ingredient="ingredient"
+							:index="index"
+							@selected="selected"
+							@deselected="deselected"
+							>
+						</ingredient>
+					</div>
+				</div>`
+		});
+
+		app.component('ingredient', {
+			props: {
+				config: Object,
+				ingredient: Object,
+				index: Number
+			},
+			emits: ['selected', 'deselected'],
+			computed: {
+				ingredientImage() {
+					return this.config.images + (this.ingredient === null || this.ingredient.image === undefined
+						? 'slot.png'
+						: this.ingredient.image);
+				}
+			},
+			methods: {
+				drop(event) {
+					this.$emit('selected', {
+						ingredientIndex: Number.parseInt(event.dataTransfer.getData('ingredient-index')),
+						index: this.index
+					});
+				},
+				deselect() {
+					this.$emit('deselected', {
+						index: this.index
+					});
+				},
+			},
+			template: `<div class="player-ingredient"
+					@drop="drop"
+					@dragover.prevent
+					@dragenter.prevent
+					@contextmenu.prevent="deselect">
+					<img :src="ingredientImage" />
+				</div>`
+		});
+
+		app.component('ingredients', {
+			props: {
+				config: Object,
+				ingredients: {
+					type: Array,
+					default: []
+				},
+				data: Object
+			},
+			methods: {
+				selected(event) {
+					this.ingredients[event.index] = {
+						ingredient: event.ingredient,
+						isConsumed: false
+					};
+				},
+				ingredientPickerClass(index) {
+					return {
+						'ingredient-consumed': this.ingredients[index].isConsumed
+					};
+				}
+			},
+			template: `<div class="ingredients">
+					<ingredient-picker
+						v-for="(ingredient, index) in ingredients"
+						:key="index"
+						:ingredients="data.ingredients"
+						:config="config"
+						:index="index"
+						:isConsumed="ingredient.isConsumed"
+						:class="ingredientPickerClass(index)"
+						@selected="selected">
+					</ingredient-picker>
+				</div>`
+		});
+
+		app.component('ingredient-picker', {
+			props: {
+				config: Object,
+				ingredients: {
+					type: Array,
+					default: []
+				},
+				index: Number,
+				isConsumed: Boolean
+			},
+			emits: ['selected'],
+			data() {
+				return {
+					selected: null,
+					isOpen: false,
+					isOpening: false,
+					filter: '',
+				}
+			},
+			setup() {
+				return {
+					name: Vue.ref(0)
+				}
+			},
+			computed: {
+				filteredIngredients() {
+					if(this.filter === undefined || this.filter === null || this.filter === '')
+						return this.ingredients;
+					const regex = new RegExp(this.filter, 'ig');
+					return Object.assign([], this.ingredients)
+						.filter(ingredient => this.filter.length < 1 || ingredient.name.match(regex));
+				},
+				selectedImage() {
+					return this.config.images + (this.selected === null
+						? 'slot.png'
+						: this.selected.image);
+				},
+				selectedName() {
+					return this.selected === null
+						? ' '
+						: this.selected.name;
+				}
+			},
+			methods: {
+				open(){
+					if(this.selected !== null)
+						return;
+
+					this.filter = '';
+					this.isOpen = true;
+
+					// awful hack to focus input
+					const self = this;
+					Vue.nextTick(() => {
+						self.isOpening = true;
+						self.$refs.filter.focus();
+					});
+				},
+				blur() {
+					// awful hack to keep input focused
+					if(this.isOpening === true) {
+						this.isOpening = false;
+						this.$refs.filter.focus();
+						return;
+					}
+
+					if (this.filter !== '' && this.filteredIngredients.length > 0)
+						this.selected = this.filteredIngredients[0];
+
+					this.changeSelected();
+				},
+				mousedown(option) {
+					this.selected = option;
+					this.changeSelected();
+				},
+				keyup(event) {
+					if (this.filteredIngredients[0])
+						this.mousedown(this.filteredIngredients[0]);
+				},
+				changeSelected() {
+					this.isOpen = false;
+
+					if(this.selected !== null)
+						this.filter = this.selected.name;
+
+					this.$emit('selected', {
+						ingredient: this.selected,
+						index: this.index});
+				},
+				deselect() {
+					if(this.selected === null || this.isConsumed)
+						return;
+
+					this.selected = null;
+					this.changeSelected();
+				},
+				dragStart(event) {
+					if(this.isConsumed) {
+						event.preventDefault();
+						return;
+					}
+					event.dataTransfer.dropEffect = 'copy';
+					event.dataTransfer.effectAllowed = 'copy';
+					event.dataTransfer.setData('ingredient-index', this.index);
+				}
+			},
+			template: `<div class="ingredient-picker">
+					<div class="ingredient-filter"
+						v-show="isOpen">
+						<input class="ingredient-filter-input"
+							placeholder="Select an ingredient..."
+							ref="filter"
+							:name="name"
+							v-model="filter"
+							@blur="blur"
+							@keyup.enter="keyup" />
+						<div class="ingredient-filter-list">
+							<div class="ingredient-item"
+								v-for="ingredient in filteredIngredients"
+								:key="ingredient.id"
+								@mousedown="mousedown(ingredient)">
+								<div>
+									<img :src="config.images + ingredient.image" />
+								</div>
+								<span>{{ ingredient.name }}</span>
+							</div>
+						</div>
+					</div>
+					<div class="ingredient-selected">
+						<img
+							:src="selectedImage"
+							@mousedown="open"
+							@contextmenu.prevent="deselect"
+							draggable
+							@dragstart="dragStart($event)" />
+						<span>{{ selectedName }}</span>
+					</div>
+				</div>`
+		});
+
+		app.component('recipe-list', {
+			props: {
+				config: Object,
+				data: Object,
+				available: {
+					type: Array,
+					default: []
+				},
+				player: {
+					type: Array,
+					default: []
+				},
+				game: {
+					type: Array,
+					default: []
+				},
+				cookingTypes: {
+					type: Array,
+					default: ['fry', 'grill', 'boil', 'chill']
+				}
+			},
+			methods: {
+				isDisplayed(recipe) {
+					if(typeof(recipe.ingredients) === "string")
+						return this.available.map(ai => ai.ingredient.type).indexOf(recipe.ingredients) > -1;
+
+					const reminaing = recipe.ingredients
+						.filter(ri => !this.available
+							.map(ai => ai.ingredient.id)
+							.includes(ri))
+						.length;
+					return this.config.maxIngredients.game - this.game.length >= reminaing;
+				},
+				isCompleted(recipe) {
+					if(typeof(recipe.ingredients) === "string")
+						return this.player.map(ingredient => ingredient.type).indexOf(recipe.ingredients) > -1;
+					return recipe.ingredients
+						.every(id => this.player.map(ingredient => ingredient.id).indexOf(id) > -1);
+				},
+				completedRecipeClass(recipe) {
+					return {
+						'recipe-completed': this.isCompleted(recipe)
+					};
+				},
+				recipesOfType(type) {
+					return this.data.recipes.filter(recipe => recipe.type === type);
+				}
+			},
+			template: `<div class="recipe-list-container"
+				v-for="(type, typeIndex) in cookingTypes"
+				:key="typeIndex">
+				<div class="recipe-list-header">
+					<img :src="config.images + type + '.png'" />
+					<span>{{ type }}</span>
+				</div>
+				<ul class="recipe-list">
+					<li
+						v-for="(recipe, index) in recipesOfType(type)"
+						v-show="isDisplayed(recipe, available)"
+						:key="index"
+						>
+						<recipe-title
+							v-bind:class="completedRecipeClass(recipe)"
+							:config="config"
+							:recipe="recipe">
+						</recipe-title>
+						<recipe-ingredient-list
+							v-if="!isCompleted(recipe, type)"
+							:recipe="recipe"
+							:data="data"
+							:ingredients="player">
+						</recipe-ingredient-list>
+					</li>
+				</ul>
+			</div>`
+		});
+
+		app.component('recipe-title', {
+			props: {
+				config: Object,
+				recipe: Object
+			},
+			computed: {
+				stars() {
+					return Math.floor(this.recipe.rating);
+				},
+				hasHalfStar() {
+					return this.recipe.rating > Math.floor(this.recipe.rating);
+				}
+			},
+			template: `<div class="recipe-title">
+					<div class="recipe-rating">
+						<div
+							v-for="star in stars">
+							<img :src="config.images + 'star.png'" />
+						</div>
+						<div
+							v-if="hasHalfStar">
+							<img :src="config.images + 'half-star.png'" />
+						</div>
+					</div>
+					<span>{{ recipe.name }}</span>
+				</div>`
+		});
+
+		app.component('recipe-ingredient-list', {
+			props: {
+				recipe: Object,
+				data: Object,
+				ingredients: {
+					type: Array,
+					default: []
+				}
+			},
+			methods: {
+				selectedIngredientClass(ingredient) {
+					return {
+						'recipe-ingredient-selected': this.ingredients
+							.map(ingredient => ingredient.id)
+							.some(ingredientId => ingredientId === ingredient.id)
+					};
+				}
+			},
+			computed: {
+				recipeIngredients() {
+					if(typeof(this.recipe.ingredients) === "string")
+						return [];
+					return this.data.ingredients
+						.filter(ingredient => this.recipe.ingredients.some(recipeIngredient => recipeIngredient === ingredient.id));
+				}
+			},
+			template: `<ul class="recipe-ingredient-list">
+					<li v-for="ingredient in recipeIngredients"
+						:class="selectedIngredientClass(ingredient)">
+						<span>{{ ingredient.name }}</span>
+					</li>
+				</ul>`
+		});
+
+		var instance = app.mount('#app');
+	</script>
+</body>
+
+</html>
