@@ -11,7 +11,7 @@
 
 <body>
 	<div id="app">
-		<section>
+		<section class="ingredients">
 			<player
 				:config="config"
 				:available="ingredients"
@@ -30,13 +30,23 @@
 				:ingredients="players.ai.ingredients">
 			</player>
 		</section>
-		<section>
+		<section class="recipes">
 			<div class="player-recipes">
 				<recipe-list
 					:config="config"
 					:data="data"
-					:available="availableIngredients"
+					:available="playerAvailableIngredients"
 					:player="playerIngredients"
+					:game="gameIngredients"
+					>
+				</recipe-list>
+			</div>
+			<div class="player-recipes">
+				<recipe-list
+					:config="config"
+					:data="data"
+					:available="aiAvailableIngredients"
+					:player="aiIngredients"
 					:game="gameIngredients"
 					>
 				</recipe-list>
@@ -243,16 +253,11 @@
 				gameIngredients() {
 					return this.sanitizeAvailable(this.ingredients);
 				},
-				availableIngredients() {
-					const available = this.sanitizeAvailable(this.ingredients);
-					this.aiIngredients.forEach(ingredient => {
-						const index = available.findIndex(availableIngredient => availableIngredient !== null && availableIngredient.ingredient.id === ingredient.id);
-						if(index === -1)
-							return;
-						available[index] = null;
-					});
-
-					return this.sanitizeAvailable(available);
+				playerAvailableIngredients() {
+					return this.availableIngredients(this.gameIngredients, this.aiIngredients);
+				},
+				aiAvailableIngredients() {
+					return this.availableIngredients(this.gameIngredients, this.playerIngredients);
 				}
 			},
 			methods: {
@@ -266,6 +271,17 @@
 							&& item !== undefined
 							&& item.ingredient !== undefined
 							&& item.ingredient !== null)
+				},
+				availableIngredients(availableIngredients, opponentIngredients) {
+					const available = this.sanitizeAvailable(availableIngredients);
+					opponentIngredients.forEach(ingredient => {
+						const index = available.findIndex(availableIngredient => availableIngredient.ingredient.id === ingredient.id);
+						if(index === -1)
+							return;
+						available[index] = null;
+					});
+
+					return this.sanitizeAvailable(available);
 				}
 			}
 		});
@@ -371,7 +387,7 @@
 					};
 				}
 			},
-			template: `<div class="ingredients">
+			template: `<div class="game-ingredients">
 					<ingredient-picker
 						v-for="(ingredient, index) in ingredients"
 						:key="index"
